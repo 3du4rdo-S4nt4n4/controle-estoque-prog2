@@ -1,0 +1,33 @@
+# ============================================================
+# Backend - Java / Maven
+# ============================================================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.iml
+.idea/
+*.iws
+*.ipr
+.settings/
+.classpath
+.project
+.factorypath
+HELP.md
+
+# ============================================================
+# Frontend - Node / Angular
+# ============================================================
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/npm-debug.log*
+frontend/yarn-error.log*
+frontend/.vscode/
+
+# ============================================================
+# Geral / Sistema Operacional
+# ============================================================
+.DS_Store
+Thumbs.db
+*.log
+.env
+COMANDOS_DIA1.md
