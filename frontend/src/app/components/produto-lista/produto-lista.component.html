@@ -1,0 +1,50 @@
+<div class="produto-lista">
+  <header class="produto-lista__header">
+    <h1>Controle de Estoque</h1>
+    <p class="subtitulo">Produtos cadastrados</p>
+  </header>
+
+  <div *ngIf="carregando" class="estado estado--carregando">
+    Carregando produtos...
+  </div>
+
+  <div *ngIf="erro" class="estado estado--erro">
+    {{ erro }}
+    <button type="button" (click)="carregarProdutos()">Tentar novamente</button>
+  </div>
+
+  <div *ngIf="!carregando && !erro">
+    <div *ngIf="produtos.length === 0" class="estado estado--vazio">
+      Nenhum produto cadastrado ainda.
+    </div>
+
+    <table *ngIf="produtos.length > 0" class="tabela-produtos">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Fornecedor</th>
+          <th>Estoque</th>
+          <th>Mínimo</th>
+          <th>Preço venda</th>
+          <th>Situação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let produto of produtos" [class.linha--estoque-baixo]="produto.estoqueBaixo">
+          <td>{{ produto.nome }}</td>
+          <td>{{ produto.categoria?.nome || '-' }}</td>
+          <td>{{ produto.fornecedor?.nome || '-' }}</td>
+          <td>{{ produto.quantidadeEstoque }} {{ produto.unidadeMedida }}</td>
+          <td>{{ produto.quantidadeMinima }}</td>
+          <td>{{ produto.precoVenda | currency:'BRL' }}</td>
+          <td>
+            <span *ngIf="produto.estoqueBaixo" class="badge badge--alerta">Estoque baixo</span>
+            <span *ngIf="!produto.estoqueBaixo && produto.ativo" class="badge badge--ok">Ativo</span>
+            <span *ngIf="!produto.ativo" class="badge badge--inativo">Inativo</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
