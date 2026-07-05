@@ -1,5 +1,6 @@
 package com.uemg.estoque.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -34,7 +35,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // 400 - erros de validacao do Bean Validation.
+    // 409 - violacao de integridade referencial no banco
+    // (ex: tentar excluir uma Categoria ou Fornecedor que ainda tem Produtos vinculados)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException ex) {
+        ErrorResponseDTO body = new ErrorResponseDTO(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de integridade",
+                "Não é possível excluir este registro pois ele está vinculado a outros dados no sistema"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    // 400 - erros de validacao do Bean Validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex) {
         List<String> detalhes = ex.getBindingResult().getFieldErrors().stream()
@@ -50,7 +63,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // 500 - qualquer outro erro nao conhecido/tratado
+    // 500 - qualquer outro erro nao tratado
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex) {
         ErrorResponseDTO body = new ErrorResponseDTO(

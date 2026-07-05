@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS fornecedor CASCADE;
 DROP TABLE IF EXISTS categoria CASCADE;
 
 CREATE TABLE categoria (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     nome        VARCHAR(100) NOT NULL UNIQUE,
     descricao   VARCHAR(255)
 );
@@ -26,7 +26,7 @@ CREATE TABLE categoria (
 -- TABELA: fornecedor
 -- ============================================================
 CREATE TABLE fornecedor (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     nome        VARCHAR(150) NOT NULL,
     cnpj        VARCHAR(18) UNIQUE,
     telefone    VARCHAR(20),
@@ -38,12 +38,12 @@ CREATE TABLE fornecedor (
 -- TABELA: produto
 -- ============================================================
 CREATE TABLE produto (
-    id                  SERIAL PRIMARY KEY,
+    id                  BIGSERIAL PRIMARY KEY,
     nome                VARCHAR(150) NOT NULL,
     descricao           VARCHAR(255),
     codigo_barras       VARCHAR(50) UNIQUE,
-    categoria_id        INTEGER REFERENCES categoria(id),
-    fornecedor_id       INTEGER REFERENCES fornecedor(id),
+    categoria_id        BIGINT REFERENCES categoria(id),
+    fornecedor_id       BIGINT REFERENCES fornecedor(id),
     preco_custo         NUMERIC(10,2) NOT NULL DEFAULT 0,
     preco_venda         NUMERIC(10,2) NOT NULL DEFAULT 0,
     quantidade_estoque  INTEGER NOT NULL DEFAULT 0,
@@ -58,8 +58,8 @@ CREATE TABLE produto (
 -- Registra toda entrada/saída, dando rastreabilidade ao estoque
 -- ============================================================
 CREATE TABLE movimentacao_estoque (
-    id                   SERIAL PRIMARY KEY,
-    produto_id           INTEGER NOT NULL REFERENCES produto(id),
+    id                   BIGSERIAL PRIMARY KEY,
+    produto_id           BIGINT NOT NULL REFERENCES produto(id),
     tipo                 VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA')),
     quantidade           INTEGER NOT NULL CHECK (quantidade > 0),
     motivo               VARCHAR(255),
@@ -84,8 +84,8 @@ INSERT INTO categoria (nome, descricao) VALUES
 ('Higiene Pessoal', 'Produtos de cuidado pessoal');
 
 INSERT INTO fornecedor (nome, cnpj, telefone, email, endereco) VALUES
-('Distribuidora Passos Ltda', '12.345.678/0001-90', '(35) 3521-1234', 'contato@distribuidorapassos.com.br', 'Av. Brasil, 500 - Passos/MG'),
-('Atacadão Sul de Minas', '98.765.432/0001-10', '(35) 3522-5678', 'vendas@atacadaosulmg.com.br', 'Rua das Indústrias, 120 - Passos/MG');
+('EMBALAGEM MINEIRINHA', '25.256.178/0001-96', '(35) 3521-5869', 'embalagemmineirinhaspassos@gmail.com', 'Rua João Teixeira Mendes, 169 - Passos/MG'),
+('DISTRISOUZA DISTRIBUIDORA', '15.159.369/0001-85', '(35) 99234-0027', 'distrisouzapassos@gmail.com', 'Avenida Projetada, 2271 - Passos/MG');
 
 INSERT INTO produto (nome, descricao, codigo_barras, categoria_id, fornecedor_id, preco_custo, preco_venda, quantidade_estoque, quantidade_minima, unidade_medida) VALUES
 ('Arroz Branco 5kg', 'Arroz tipo 1, pacote de 5kg', '7891000100103', 1, 1, 18.50, 24.90, 40, 10, 'UN'),
