@@ -1,0 +1,122 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ modoEdicao ? 'Editar Produto' : 'Novo Produto' }}</h5>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <div class="modal-body">
+
+    <div class="mb-3">
+      <label for="nome" class="form-label">Nome *</label>
+      <input id="nome" type="text" class="form-control"
+             [class.is-invalid]="form.get('nome')?.invalid && form.get('nome')?.touched"
+             formControlName="nome" />
+      <div class="invalid-feedback">
+        Informe o nome do produto (até 150 caracteres).
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="descricao" class="form-label">Descrição</label>
+      <input id="descricao" type="text" class="form-control" formControlName="descricao" />
+    </div>
+
+    <div class="mb-3">
+      <label for="codigoBarras" class="form-label">Código de barras</label>
+      <input id="codigoBarras" type="text" class="form-control" formControlName="codigoBarras" />
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="categoriaId" class="form-label">Categoria</label>
+        <select id="categoriaId" class="form-select" formControlName="categoriaId">
+          <option [ngValue]="null">-- Selecione --</option>
+          <option *ngFor="let categoria of categorias" [ngValue]="categoria.id">
+            {{ categoria.nome }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="fornecedorId" class="form-label">Fornecedor</label>
+        <select id="fornecedorId" class="form-select" formControlName="fornecedorId">
+          <option [ngValue]="null">-- Selecione --</option>
+          <option *ngFor="let fornecedor of fornecedores" [ngValue]="fornecedor.id">
+            {{ fornecedor.nome }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="precoCusto" class="form-label">Preço de custo *</label>
+        <input id="precoCusto" type="number" step="0.01" class="form-control"
+               [class.is-invalid]="form.get('precoCusto')?.invalid && form.get('precoCusto')?.touched"
+               formControlName="precoCusto" />
+        <div class="invalid-feedback">
+          Informe um valor válido (maior ou igual a zero).
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="precoVenda" class="form-label">Preço de venda *</label>
+        <input id="precoVenda" type="number" step="0.01" class="form-control"
+               [class.is-invalid]="form.get('precoVenda')?.invalid && form.get('precoVenda')?.touched"
+               formControlName="precoVenda" />
+        <div class="invalid-feedback">
+          Informe um valor válido (maior ou igual a zero).
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="quantidadeEstoque" class="form-label">Quantidade em estoque *</label>
+        <input id="quantidadeEstoque" type="number" class="form-control"
+               [class.is-invalid]="form.get('quantidadeEstoque')?.invalid && form.get('quantidadeEstoque')?.touched"
+               formControlName="quantidadeEstoque" />
+        <div class="invalid-feedback">
+          Informe uma quantidade válida.
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="quantidadeMinima" class="form-label">Quantidade mínima *</label>
+        <input id="quantidadeMinima" type="number" class="form-control"
+               [class.is-invalid]="form.get('quantidadeMinima')?.invalid && form.get('quantidadeMinima')?.touched"
+               formControlName="quantidadeMinima" />
+        <div class="invalid-feedback">
+          Informe uma quantidade válida.
+        </div>
+      </div>
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-3">
+        <label for="unidadeMedida" class="form-label">Unidade de medida *</label>
+        <input id="unidadeMedida" type="text" class="form-control" formControlName="unidadeMedida"
+               placeholder="UN, KG, CX..." />
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="form-check mt-4">
+          <input id="ativo" type="checkbox" class="form-check-input" formControlName="ativo" />
+          <label for="ativo" class="form-check-label">Produto ativo</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-danger mb-0" *ngIf="erroSalvar">
+      {{ erroSalvar }}
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="salvando">
+      Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="salvando">
+      {{ salvando ? 'Salvando...' : 'Salvar' }}
+    </button>
+  </div>
+</form>

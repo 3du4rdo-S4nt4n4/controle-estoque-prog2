@@ -1,50 +1,118 @@
-<div class="produto-lista">
-  <header class="produto-lista__header">
-    <h1>Controle de Estoque</h1>
-    <p class="subtitulo">Produtos cadastrados</p>
-  </header>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+      <h1 class="h3 mb-0">Controle de Estoque</h1>
+      <p class="text-muted mb-0">Produtos cadastrados</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="abrirNovoProduto()">
+      + Novo Produto
+    </button>
+  </div>
 
-  <div *ngIf="carregando" class="estado estado--carregando">
+  <div *ngIf="carregando" class="d-flex align-items-center gap-2 alert alert-light border">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
     Carregando produtos...
   </div>
 
-  <div *ngIf="erro" class="estado estado--erro">
-    {{ erro }}
-    <button type="button" (click)="carregarProdutos()">Tentar novamente</button>
+  <div *ngIf="erro" class="alert alert-danger d-flex justify-content-between align-items-center">
+    <span>{{ erro }}</span>
+    <button type="button" class="btn btn-sm btn-outline-danger" (click)="carregarProdutos()">
+      Tentar novamente
+    </button>
   </div>
 
   <div *ngIf="!carregando && !erro">
-    <div *ngIf="produtos.length === 0" class="estado estado--vazio">
+    <div *ngIf="produtos.length === 0" class="alert alert-secondary text-center">
       Nenhum produto cadastrado ainda.
     </div>
 
-    <table *ngIf="produtos.length > 0" class="tabela-produtos">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Categoria</th>
-          <th>Fornecedor</th>
-          <th>Estoque</th>
-          <th>Mínimo</th>
-          <th>Preço venda</th>
-          <th>Situação</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let produto of produtos" [class.linha--estoque-baixo]="produto.estoqueBaixo">
-          <td>{{ produto.nome }}</td>
-          <td>{{ produto.categoria?.nome || '-' }}</td>
-          <td>{{ produto.fornecedor?.nome || '-' }}</td>
-          <td>{{ produto.quantidadeEstoque }} {{ produto.unidadeMedida }}</td>
-          <td>{{ produto.quantidadeMinima }}</td>
-          <td>{{ produto.precoVenda | currency:'BRL' }}</td>
-          <td>
-            <span *ngIf="produto.estoqueBaixo" class="badge badge--alerta">Estoque baixo</span>
-            <span *ngIf="!produto.estoqueBaixo && produto.ativo" class="badge badge--ok">Ativo</span>
-            <span *ngIf="!produto.ativo" class="badge badge--inativo">Inativo</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div *ngIf="produtos.length > 0" class="table-responsive shadow-sm rounded">
+      <table class="table table-hover align-middle mb-0 bg-white">
+        <thead class="table-light">
+          <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Fornecedor</th>
+            <th>Estoque</th>
+            <th>Mínimo</th>
+            <th>Preço venda</th>
+            <th>Situação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let produto of produtos" [class.table-warning]="produto.estoqueBaixo">
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.categoria?.nome || '-' }}</td>
+            <td>{{ produto.fornecedor?.nome || '-' }}</td>
+            <td>{{ produto.quantidadeEstoque }} {{ produto.unidadeMedida }}</td>
+            <td>{{ produto.quantidadeMinima }}</td>
+            <td>{{ produto.precoVenda | currency:'BRL' }}</td>
+            <td>
+              <span *ngIf="produto.estoqueBaixo" class="badge text-bg-warning">Estoque baixo</span>
+              <span *ngIf="!produto.estoqueBaixo && produto.ativo" class="badge text-bg-success">Ativo</span>
+              <span *ngIf="!produto.ativo" class="badge text-bg-secondary">Inativo</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-primary" (click)="abrirEdicao(produto)">
+                  Editar
+                </button>
+                <button type="button" class="btn btn-outline-danger" (click)="pedirConfirmacaoExclusao(produto)">
+                  Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
+  <!-- Modal de cadastro/edicao (classes do Bootstrap, controlado pelo *ngIf do Angular, sem JS do Bootstrap) -->
+  <ng-container *ngIf="mostrarFormulario">
+    <div class="modal d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <app-produto-form
+            [produtoEmEdicao]="produtoEmEdicao"
+            (salvo)="aoSalvarProduto()"
+            (cancelado)="fecharFormulario()">
+          </app-produto-form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </ng-container>
+
+  <!-- Modal de confirmacao de exclusao -->
+  <ng-container *ngIf="produtoParaExcluir as produto">
+    <div class="modal d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar exclusão</h5>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">
+              Tem certeza que deseja excluir o produto <strong>{{ produto.nome }}</strong>?
+              Essa ação não pode ser desfeita.
+            </p>
+            <div class="alert alert-danger mt-3 mb-0" *ngIf="erroExcluir">
+              {{ erroExcluir }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cancelarExclusao()" [disabled]="excluindo">
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" (click)="confirmarExclusao()" [disabled]="excluindo">
+              {{ excluindo ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </ng-container>
 </div>
